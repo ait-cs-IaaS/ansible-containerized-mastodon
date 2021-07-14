@@ -1,0 +1,20 @@
+---
+- name: Install apt packages
+  tags: [install]
+  apt:
+    name: "{{ apt_packages }}"
+    state: present
+
+- name: Add NGINX configuration file
+  template:
+    dest: /etc/nginx/sites-enabled/default
+    src: ../templates/nginx_default.conf.j2
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - "restart nginx"
+
+- name: Install pip packages 
+  pip:
+    name: Mastodon.py

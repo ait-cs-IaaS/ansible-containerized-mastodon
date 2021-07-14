@@ -1,0 +1,13 @@
+---
+
+- name: Setup Server
+  tags: [setup]
+  include_tasks: setup.yml
+
+- name: Start services
+  tags: [config, services]
+  include_tasks: services.yml
+
+- name: Deploy Mastodon
+  tags: [deploy]
+  include_tasks: deploy.yml

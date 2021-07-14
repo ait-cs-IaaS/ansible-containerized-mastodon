@@ -1,0 +1,57 @@
+version: '3'
+
+volumes:
+  mastodon:
+  postgres:
+  redis:
+
+networks:
+  http_network:
+    external: true
+
+  mastodon_network:
+    external: false
+    internal: true
+
+services:
+  mastodon:
+    image: ghcr.io/wonderfall/mastodon
+    container_name: mastodon
+    restart: unless-stopped
+    env_file: .env.production
+    expose:
+      - "3000"
+      - "4000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - mastodon:/mastodon/public/system
+    networks:
+      - mastodon_network
+      - http_network
+
+  db:
+    restart: always
+    image: postgres:9.6-alpine
+    container_name: db
+    env_file: .env.production
+    expose:
+      - "5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - mastodon_network
+
+  redis:
+    restart: always
+    image: redis:alpine
+    container_name: redis
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    volumes:
+      - redis:/data
+    networks:
+      - mastodon_network

@@ -1,0 +1,19 @@
+---
+- name: Start nginx
+  tags: [deloy]
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  notify:
+  - restart nginx
+
+- name: Start docker
+  tags: [deloy]
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure handlers are notified
+  meta: flush_handlers

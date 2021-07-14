@@ -1,0 +1,37 @@
+---
+
+- name: Create mastodon directory
+  file:
+    path: "{{ deploy_dir }}"
+    state: directory
+
+- name: Deploy docker compose
+  template:
+    dest: /opt/mastodon/docker-compose.yml
+    src: ../templates/docker-compose.yml.j2
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create and start services
+  community.docker.docker_compose:
+    project_src: "{{ deploy_dir }}"
+
+- name: Create ait user
+  community.docker.docker_container_exec:
+    container: mastodon
+    command: "/mastodon/bin/tootctl accounts create ait --email {{ admin_user }} --confirmed --role admin"
+    chdir: "/mastodon"
+  register: tootctl_result
+
+- set_fact:
+    admin_password: "{{ admin_password.stdout | regex_search('New\spassword:\s(?P<password>[^\s]+)', '\\g<password>') }}"
+
+- name: Deploy docker compose
+  template:
+    dest: /opt/mastodon/masto_bot.py
+    src: ../templates/masto_bot.py
+    owner: root
+    group: root
+    mode: 0755
+

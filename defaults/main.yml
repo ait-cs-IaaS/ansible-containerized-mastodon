@@ -1,0 +1,7 @@
+---
+server_name: mastodon.local
+apt_packages:
+  - nginx
+  - docker
+  - docker-compose
+admin_user: ait@cyberrange.at

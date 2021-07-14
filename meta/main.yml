@@ -1,0 +1,11 @@
+galaxy_info:
+  role_name: containerized-mastodon
+  author: Benjamin Akhras
+  description: Mastodon installation via docker-compose.
+  company: Austrian Institute of Technology
+
+  license: GPL-3.0
+
+  min_ansible_version: 3.0
+
+  galaxy_tags: [container]
