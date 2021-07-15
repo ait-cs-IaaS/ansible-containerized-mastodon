@@ -1,0 +1,13 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+platforms:
+  - name: instance
+    box: generic/ubuntu2004
+
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

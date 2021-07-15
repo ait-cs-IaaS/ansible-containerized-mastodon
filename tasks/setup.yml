@@ -1,11 +1,13 @@
 ---
 - name: Install apt packages
   tags: [install]
+  become: true
   apt:
     name: "{{ apt_packages }}"
     state: present
 
 - name: Add NGINX configuration file
+  become: true
   template:
     dest: /etc/nginx/sites-enabled/default
     src: ../templates/nginx_default.conf.j2
@@ -16,5 +18,6 @@
     - "restart nginx"
 
 - name: Install pip packages 
+  become: true
   pip:
     name: Mastodon.py

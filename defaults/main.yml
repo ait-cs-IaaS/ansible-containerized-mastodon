@@ -4,4 +4,7 @@ apt_packages:
   - nginx
   - docker
   - docker-compose
+  - python3-pip
 admin_user: ait@cyberrange.at
+deploy_dir: "/opt/mastodon"
+global_mail_server: "127.0.0.1"

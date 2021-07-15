@@ -1,23 +1,36 @@
 ---
 
 - name: Create mastodon directory
+  become: true
   file:
     path: "{{ deploy_dir }}"
     state: directory
 
 - name: Deploy docker compose
+  become: true
   template:
-    dest: /opt/mastodon/docker-compose.yml
-    src: ../templates/docker-compose.yml.j2
+    dest: "{{ deploy_dir }}/docker-compose.yml"
+    src: docker-compose.yml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Deploy env file
+  become: true
+  template:
+    dest: "{{ deploy_dir }}/.env.production"
+    src: .env.production.j2
     owner: root
     group: root
     mode: 0644
 
 - name: Create and start services
+  become: true
   community.docker.docker_compose:
     project_src: "{{ deploy_dir }}"
 
 - name: Create ait user
+  become: true
   community.docker.docker_container_exec:
     container: mastodon
     command: "/mastodon/bin/tootctl accounts create ait --email {{ admin_user }} --confirmed --role admin"
@@ -25,12 +38,13 @@
   register: tootctl_result
 
 - set_fact:
-    admin_password: "{{ admin_password.stdout | regex_search('New\spassword:\s(?P<password>[^\s]+)', '\\g<password>') }}"
+    admin_password: "{{ tootctl_result.stdout }}" # | regex_search('New password: ([^\s]+)') }}"
 
 - name: Deploy docker compose
+  become: true
   template:
-    dest: /opt/mastodon/masto_bot.py
-    src: ../templates/masto_bot.py
+    dest: "{{ deploy_dir }}/masto_bot.py"
+    src: masto_bot.py
     owner: root
     group: root
     mode: 0755

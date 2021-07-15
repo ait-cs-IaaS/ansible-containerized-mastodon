@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include ansible-containerized-mastodon"
+      include_role:
+        name: "ansible-containerized-mastodon"
