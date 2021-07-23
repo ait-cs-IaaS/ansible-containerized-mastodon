@@ -10,7 +10,7 @@
   become: true
   template:
     dest: /etc/nginx/sites-enabled/default
-    src: ../templates/nginx_default.conf.j2
+    src:  nginx_default.conf.j2
     owner: root
     group: root
     mode: 0644
@@ -20,4 +20,24 @@
 - name: Install pip packages 
   become: true
   pip:
-    name: Mastodon.py
+    name: ["Mastodon.py", "click"]
+
+- name: Create directory structure
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: ["{{ deploy_dir }}", "{{ deploy_dir }}/masto_bot", "{{ deploy_dir }}/media", "{{ deploy_dir }}/config"]
+
+- name: Create mastobot config
+  copy:
+    dest: /etc/mastobot_config.yaml
+    mode: 0644
+    content: |
+      server_name: {{ server_name }}
+      mediapath: {{ deploy_dir }}/media
+
+- name: Create mastobot config
+  template:
+    dest: "{{ deploy_dir }}/config/config.exs"
+    src: config.exs.j2

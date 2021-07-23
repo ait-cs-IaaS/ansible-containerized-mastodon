@@ -6,5 +6,30 @@ apt_packages:
   - docker-compose
   - python3-pip
 admin_user: ait@cyberrange.at
-deploy_dir: "/opt/mastodon"
+admin_password: "password"
+deploy_dir: /opt/mastodon
+instance_name: "KSÖ Planspiel"
 global_mail_server: "127.0.0.1"
+use_soapbox: false
+mastodon_users:
+  - login: "cert"
+    email: "cert@fullscope.at"
+    password: "certpassword"
+    initial_toots:
+      - text: "Cyber Cyber Cyber"
+      - text: "Hello Masto"
+      - text: "My cat"
+    follow: ["user1", "user2"]
+  - login: "user1"
+    email: "user1@test.com"
+    initial_toots:
+      - text: "I toot therefore I am"
+    follow: ["cert"]
+  - login: "user2"
+    email: "user2@cyberrange.at"
+    password: "password"
+    initial_toots:
+      - text: "I toot therefore I am"
+    follow: ["cert"]
+  - login: "user3"
+    email: "user3@cyberrange.at"

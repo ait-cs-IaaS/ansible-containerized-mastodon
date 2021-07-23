@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+
+from mastodon import Mastodon
+from os import path
+
+
+API_URL = "https://{{ server_name }}"
+
+
+def initialize_toots(mastodon, initial_toots):
+  for toot in initial_toots:
+    if 'media' in toot and path.isfile("/opt/mastodon/media/{0}".format(toot['media'])):
+      mastodon.media_post(media_file="/opt/mastodon/media/{0}".format(toot['media']), description=toot['text'])
+    else:
+      mastodon.toot(toot['text'])
+
+def initialize_follows(mastodon, follow):
+  for uid in follow:
+    mastodon.account_follow(id=uid, reblogs=True)
+
+def create_app(login, secret_file):
+  Mastodon.create_app(
+    '{0}_bot'.format(login),
+    api_base_url = API_URL,
+    to_file = secret_file
+  )
+
+  mastodon = Mastodon(
+    client_id = secret_file,
+    api_base_url = API_URL
+  )
+  return mastodon
+
+def register_user(login, email, password):
+  secret_file = 'masto_bot/{0}.secret'.format(login)
+  if path.isfile(secret_file):
+    return login_user(login, email, password)
+
+  mastodon = create_app(login, secret_file)
+
+  mastodon.create_account(
+      username=login,
+      password=password,
+      email=email,
+      agreement=True,
+      to_file=secret_file
+  )
+  return mastodon
+
+def login_user(login, email, password):
+  secret_file = 'masto_bot/{0}.secret'.format(login)
+  mastodon = create_app(login, secret_file)
+
+  mastodon.log_in(
+    username=login,
+    password=password,
+    to_file=secret_file
+  )
+  return mastodon
+
+
+def main():
+  login_user('{{ admin_user.split('@')[0] }}', '{{ admin_user }}', '{{ admin_password }}')
+
+{% for user in mastodon_users %}
+  try:
+    mastodon = register_user(
+      "{{ user['login'] }}",
+      "{{ user['email'] }}",
+      "{{ user['password'] | default('password') }}"
+    )
+    if mastodon != None:
+      initialize_toots(mastodon, {{ user['initial_toots'] | default([]) }})
+      initialize_follows(mastodon, {{ user['follow'] | default([]) }})
+  except Exception as err:
+    print("Error setting up: {{ user['login'] }}")
+    print(err)
+
+{% endfor %}
+
+
+if __name__ == '__main__':
+  main()
+

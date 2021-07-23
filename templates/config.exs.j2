@@ -1,0 +1,47 @@
+# Pleroma instance configuration
+
+import Config
+
+config :pleroma, Pleroma.Web.Endpoint,
+   url: [host: "{{ server_name }}", scheme: "https", port: 443],
+   http: [ip: {0, 0, 0, 0}, port: 4000],
+   secret_key_base: "0t4xKPX5T7PQm9Y4nJDMcGB1mcT6qfa4uun9pW6tUmQS1er0ERToI35Q1nSjMFfI",
+   signing_salt: "9i7X51U5"
+
+config :pleroma, :instance,
+  name: "{{ instance_name }}",
+  email: "{{ admin_user }}",
+  notify_email: "{{ admin_user }}",
+  limit: 5000,
+  registrations_open: true
+
+config :pleroma, Pleroma.Captcha,
+  enabled: false
+
+config :pleroma, :media_proxy,
+  enabled: false,
+  redirect_on_failure: true
+  #base_url: "https://cache.pleroma.social"
+
+config :pleroma, Pleroma.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "mastodon",
+  password: "supersecretpassword",
+  database: "mastodon",
+  hostname: "postgres"
+
+# Configure web push notifications
+config :web_push_encryption, :vapid_details,
+  subject: "mailto:ait@cyberrange.at",
+  public_key: "BO7vvc4-jfuBcLBpQj_eXMRPZS386Ti-DPIdjijTK96SgMo5Awu30gxuWB4QKt_4WpcpZs3hTCs-Ly3LCgFcDnk",
+  private_key: "FCkUvKLEtDFzX0jV8GNDrG94pthxUWvKE6R8JKoUkEw"
+
+config :pleroma, :database, rum_enabled: false
+config :pleroma, :instance, static_dir: "/var/lib/pleroma/static"
+config :pleroma, Pleroma.Uploaders.Local, uploads: "/var/lib/pleroma/uploads"
+
+config :joken, default_signer: "58XQjbj8/ykzsAE/CVX4PGJToU1jD6KfoDqwvuimeiyvuaihVHArpdUPOpXgVgZV"
+
+config :pleroma, configurable_from_database: true
+
+config :pleroma, Pleroma.Upload, filters: [Pleroma.Upload.Filter.Exiftool, Pleroma.Upload.Filter.AnonymizeFilename, Pleroma.Upload.Filter.Dedupe]

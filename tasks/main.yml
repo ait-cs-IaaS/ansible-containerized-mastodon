@@ -1,5 +1,4 @@
 ---
-
 - name: Setup Server
   tags: [setup]
   include_tasks: setup.yml
@@ -11,3 +10,7 @@
 - name: Deploy Mastodon
   tags: [deploy]
   include_tasks: deploy.yml
+
+- name: Mastobot
+  tags: [mastobot]
+  include_tasks: mastobot.yml
