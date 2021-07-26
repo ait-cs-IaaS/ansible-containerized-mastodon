@@ -1,34 +1,52 @@
 ---
+- name: Create config directory
+  become: true
+  file:
+    path: "/etc/mastobot"
+    state: directory
 
 - name: Create mastobot config
   become: true
   copy:
-    dest: /etc/mastobot_config.yaml
+    dest: /etc/mastobot/config.yaml
     mode: 0644
     content: |
       server_name: {{ server_name }}
-      mediapath: {{ deploy_dir }}
+      mediapath: {{ deploy_dir }}/media
+
+- name: Create mastobot Bootsrap config
+  copy:
+    dest: /etc/mastobot/bootstrap.yaml
+    mode: 0644
+    content: |
+      admin_user: {{ admin_user }}
+      admin_password: {{ admin_password }}
+      mastodon_users: {{ mastodon_users }}
 
 - name: Deploy mastobot
   become: true
-  template:
+  copy:
     dest: "{{ deploy_dir }}/masto_bot.py"
     src: masto_bot.py
     mode: 0755
 
-- name: Create a symbolic link
-  become: true
-  file:
-    src: "{{ deploy_dir }}/masto_bot.py"
-    dest: "/usr/bin/mastobot"
-    state: link
-
 - name: Deploy mastobot bootstrap
   become: true
-  template:
+  copy:
     dest: "{{ deploy_dir }}/masto_bot_bootstrap.py"
-    src: masto_bot_bootstrap.py.j2
+    src: masto_bot_bootstrap.py
     mode: 0755
+
+- name: Create mastobot startscript
+  become: true
+  copy:
+    dest: "/usr/bin/mastobot"
+    mode: 0755
+    content: |
+      #!/bin/bash
+
+      export REQUESTS_CA_BUNDLE={{ ssl_cert }}
+      {{ deploy_dir }}/masto_bot.py "$@"
 
 - name: Mastobot Bootstrap
   shell:

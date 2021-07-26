@@ -9,7 +9,7 @@ import click
 @click.command()
 @click.option('--user', prompt='Username: ', help='User to toot as')
 @click.option('--media', help='Media to toot')
-@click.option('--config', default='/etc/mastobot_config.yaml', help='Mastobot config')
+@click.option('--config', default='/etc/mastobot/config.yaml', help='Mastobot config')
 @click.argument('text')
 def main(user, media, config, text):
   """Simple program that toots texts or media as user"""

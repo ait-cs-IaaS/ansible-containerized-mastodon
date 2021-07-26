@@ -21,17 +21,28 @@ mastodon_users:
       - text: "Cyber Cyber Cyber"
       - text: "Hello Masto"
       - text: "My cat"
+        media: "katze.jpg"
     follow: ["user1", "user2"]
+    account:
+      bio: "CERT Protecting the Cyber"
+      display_name: "Fullscope CERT"
+      header: "eso1907a.jpg"
+      avatar: "cs.jpg"
   - login: "user1"
+    password: "password"
     email: "user1@test.com"
     initial_toots:
       - text: "I toot therefore I am"
     follow: ["cert"]
-  - login: "user2"
-    email: "user2@cyberrange.at"
-    password: "password"
+  - login: "hackerman"
+    email: "hacker@cyberrange.at"
+    account:
+      bio: "Hacking Time & Space"
+      display_name: "HACKERMAN"
+      avatar: "hackerman.gif"
     initial_toots:
-      - text: "I toot therefore I am"
+      - text: "Remember: With great processing power comes great responsibility"
+      - text: "Got into Hardcore hacking mode yesterday"
     follow: ["cert"]
   - login: "user3"
     email: "user3@cyberrange.at"
