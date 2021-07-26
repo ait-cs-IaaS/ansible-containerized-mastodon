@@ -35,4 +35,4 @@
     cmd: "{{ deploy_dir }}/masto_bot_bootstrap.py"
     chdir: "{{ deploy_dir }}"
   environment:
-    REQUESTS_CA_BUNDLE: /etc/ssl/mastodon.crt
+    REQUESTS_CA_BUNDLE: "{{ ssl_cert }}"

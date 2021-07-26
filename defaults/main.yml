@@ -8,6 +8,8 @@ apt_packages:
 admin_user: ait@cyberrange.at
 admin_password: "password"
 deploy_dir: /opt/mastodon
+ssl_cert: "/etc/ssl/mastodon.crt"
+ssl_key: "/etc/ssl/mastodon.key"
 instance_name: "KSÖ Planspiel"
 global_mail_server: "127.0.0.1"
 use_soapbox: false
