@@ -36,6 +36,8 @@
     dest: "{{ deploy_dir }}/media/"
 
 - name: Write pleroma config
+  become: true
   template:
     dest: "{{ deploy_dir }}/config/config.exs"
     src: config.exs.j2
+
