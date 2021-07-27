@@ -15,6 +15,7 @@
       mediapath: {{ deploy_dir }}/media
 
 - name: Create mastobot Bootsrap config
+  become: true
   copy:
     dest: /etc/mastobot/bootstrap.yaml
     mode: 0644

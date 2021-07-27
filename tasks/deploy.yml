@@ -26,6 +26,7 @@
     project_src: "{{ deploy_dir }}"
 
 - name: Copy ait user setup
+  become: true
   shell:
     cmd: "docker cp {{ deploy_dir }}/user_setup.sh mastodon:/opt/pleroma"
 
