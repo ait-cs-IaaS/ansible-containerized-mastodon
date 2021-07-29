@@ -9,3 +9,5 @@ galaxy_info:
   min_ansible_version: 3.0
 
   galaxy_tags: [container]
+
+dependencies: []
