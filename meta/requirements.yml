@@ -1,5 +1,0 @@
-# Ansible Collections
-collections:
-  - name: community.docker.docker_compose
-  - name: community.docker.docker_container_exec
-
