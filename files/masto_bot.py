@@ -26,4 +26,3 @@ def main(user, media, config, text):
 
 if __name__ == '__main__':
     main() # pylint: disable=no-value-for-parameter
-

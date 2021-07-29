@@ -4,9 +4,13 @@ from mastodon import Mastodon
 import os
 import click
 import yaml
+import traceback
 
 API_URL = ""
 MEDIAPATH = "/opt/mastodon/media"
+USERS_ENDPOINT = "/api/v1/pleroma/admin/users"
+DEFAULT_SCOPES = ['read', 'write', 'follow', 'push']
+ADMIN_SCOPES = DEFAULT_SCOPES + ['admin:read', 'admin:write']
 
 def initialize_toots(mastodon, initial_toots=[]):
   for toot in initial_toots:
@@ -16,9 +20,10 @@ def initialize_toots(mastodon, initial_toots=[]):
       mastodon.toot(toot['text'])
 
 
-def initialize_follows(mastodon, follow=[]):
+def initialize_follows(mastodon, nicknames, follow=[]):
   for uid in follow:
-    mastodon.follows(uri=uid)
+    if uid in nicknames:
+      mastodon.follows(uri=uid)
 
 
 def update_account(mastodon, account):
@@ -32,16 +37,18 @@ def update_account(mastodon, account):
     mastodon.account_update_credentials(header="{0}/{1}".format(MEDIAPATH, account['header']))
 
 
-def create_app(login, secret_file):
+def create_app(login, secret_file, scopes=DEFAULT_SCOPES):
   Mastodon.create_app(
     '{0}_bot'.format(login),
     api_base_url = API_URL,
-    to_file = secret_file
+    to_file = secret_file,
+    scopes=scopes
   )
 
   return Mastodon(
-    client_id = secret_file,
-    api_base_url = API_URL
+    client_id=secret_file,
+    api_base_url=API_URL,
+    feature_set="pleroma"
   )
 
 def register_user(login, email, password):
@@ -60,22 +67,34 @@ def register_user(login, email, password):
   )
   return mastodon
 
-def login_user(login, email, password):
+def login_user(login, email, password, scopes=DEFAULT_SCOPES):
   secret_file = 'masto_bot/{0}.secret'.format(login)
-  mastodon = create_app(login, secret_file)
+  mastodon = create_app(login, secret_file, scopes)
 
   mastodon.log_in(
     username=login,
     password=password,
-    to_file=secret_file
+    to_file=secret_file,
+    scopes=scopes
   )
   return mastodon
 
+def reset_user(admin_mastodon, nickname):
+  try:
+    admin_mastodon._Mastodon__api_request('DELETE', USERS_ENDPOINT, {'nickname': nickname})
+  except:
+    pass
+
+def reset_toots(mastodon, uid):
+  toots = mastodon.account_statuses(uid)
+  for toot in toots:
+    mastodon.status_delete(toot['id'])
 
 @click.command()
 @click.option('--mastobotconfig', default='/etc/mastobot/config.yaml', help='Mastobot config')
 @click.option('--bootstrapconfig', default='/etc/mastobot/bootstrap.yaml', help='Mastobot Bootstrap config')
-def main(mastobotconfig, bootstrapconfig):
+@click.option('--reset', default=False, envvar='MASTO_RESET', is_flag=True, help='Reset')
+def main(mastobotconfig, bootstrapconfig, reset):
   global API_URL, MEDIAPATH
 
   with open(mastobotconfig) as f:
@@ -84,30 +103,47 @@ def main(mastobotconfig, bootstrapconfig):
   MEDIAPATH = mastobotconfig_dict['mediapath']
   API_URL = "https://{0}".format(mastobotconfig_dict['server_name'])
 
-  is_bootstrapped = "{0}/../.masto_bot_bootstrapped".format(MEDIAPATH)
-  if os.path.isfile(is_bootstrapped):
-    exit(0)
-
   with open(bootstrapconfig) as f:
     config_dict = yaml.safe_load(f)
 
-  login_user(config_dict['admin_user'].split('@')[0], config_dict['admin_user'], config_dict['admin_password'])
+  os.makedirs('masto_bot', exist_ok=True)
+
+  admin_mastodon = login_user(
+    config_dict['admin_user'].split('@')[0],
+    config_dict['admin_user'],
+    config_dict['admin_password'],
+    scopes=ADMIN_SCOPES)
+
+  existing_users = admin_mastodon._Mastodon__api_request('GET', USERS_ENDPOINT)
+  nicknames = [ existing_user['nickname'] for existing_user in existing_users['users'] ]
 
   for user in config_dict['mastodon_users']:
-    try:
-      mastodon = register_user(
-        user['login'],
-        user['email'],
-        user.get('password', 'password')
-      )
-      if mastodon != None:
-        initialize_toots(mastodon, user.get('initial_toots', []))
-        initialize_follows(mastodon, user.get('follow', []))
-        update_account(mastodon, user.get('account', []))
-    except Exception as err:
-      print("Error setting up: {0}\n{1}".format(user['login'], err))
+    if reset:
+      os.remove('masto_bot/{0}.secret'.format(user['login']))
+      # reset_user(admin_mastodon, user['login'])
 
-    open(is_bootstrapped, 'a').close()
+    try:
+      if user['login'] in nicknames:
+        mastodon = login_user(
+          user['login'],
+          user['email'],
+          user.get('password', 'password'))
+      else:
+        mastodon = register_user(
+          user['login'],
+          user['email'],
+          user.get('password', 'password')
+        )
+        initialize_toots(mastodon, user.get('initial_toots', []))
+
+      if reset:
+        reset_toots(mastodon, mastodon.me()['id'])
+
+      initialize_follows(mastodon, nicknames, user.get('follow', []))
+      update_account(mastodon, user.get('account', []))
+    except Exception as err:
+      print("[{0}] ERROR {1}".format(user['login'], err))
+      traceback.print_exc()
 
 
 if __name__ == '__main__':

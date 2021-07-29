@@ -32,6 +32,7 @@
     mode: 0755
 
 - name: Deploy mastobot bootstrap
+  tags: ["mastobot"]
   become: true
   copy:
     dest: "{{ deploy_dir }}/masto_bot_bootstrap.py"

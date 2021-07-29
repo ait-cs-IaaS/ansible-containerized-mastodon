@@ -30,6 +30,12 @@
   shell:
     cmd: "docker cp {{ deploy_dir }}/user_setup.sh mastodon:/opt/pleroma"
 
+- name: Wait for mastodon to start
+  wait_for:
+    host: 127.0.0.1
+    port: 4000
+    delay: 3
+
 - name: Create ait user
   become: true
   community.docker.docker_container_exec:
