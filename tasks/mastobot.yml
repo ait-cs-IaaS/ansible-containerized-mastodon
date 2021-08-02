@@ -24,6 +24,14 @@
       admin_password: {{ admin_password }}
       mastodon_users: {{ mastodon_users }}
 
+- name: Create masto_bot directory
+  become: true
+  file:
+    path: "{{ deploy_dir }}/masto_bot"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
 - name: Deploy mastobot
   become: true
   copy:
@@ -47,7 +55,7 @@
     content: |
       #!/bin/bash
 
-      export REQUESTS_CA_BUNDLE={{ ssl_cert }}
+      export REQUESTS_CA_BUNDLE={{ ca_cert }}
       {{ deploy_dir }}/masto_bot.py "$@"
 
 - name: Mastobot Bootstrap
@@ -55,4 +63,4 @@
     cmd: "{{ deploy_dir }}/masto_bot_bootstrap.py"
     chdir: "{{ deploy_dir }}"
   environment:
-    REQUESTS_CA_BUNDLE: "{{ ssl_cert }}"
+    REQUESTS_CA_BUNDLE: "{{ ca_cert }}"
