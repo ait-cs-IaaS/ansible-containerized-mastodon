@@ -55,7 +55,7 @@
     content: |
       #!/bin/bash
 
-      export REQUESTS_CA_BUNDLE={{ ca_cert }}
+      export REQUESTS_CA_BUNDLE={{ ssl_ca }}
       {{ deploy_dir }}/masto_bot.py "$@"
 
 - name: Mastobot Bootstrap
@@ -63,4 +63,5 @@
     cmd: "{{ deploy_dir }}/masto_bot_bootstrap.py"
     chdir: "{{ deploy_dir }}"
   environment:
-    REQUESTS_CA_BUNDLE: "{{ ca_cert }}"
+    REQUESTS_CA_BUNDLE: "{{ ssl_ca }}"
+
