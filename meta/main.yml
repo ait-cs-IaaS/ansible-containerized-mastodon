@@ -1,5 +1,5 @@
 galaxy_info:
-  role_name: containerized-mastodon
+  role_name: mastodon
   author: Benjamin Akhras
   description: Mastodon installation via docker-compose.
   company: Austrian Institute of Technology
