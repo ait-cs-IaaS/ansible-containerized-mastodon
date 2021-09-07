@@ -47,3 +47,12 @@ mastodon_users:
     follow: ["cert"]
   - login: "user3"
     email: "user3@cyberrange.at"
+mastodon_prepared_toots:
+  - toot_id: "toot_whenever"
+    user: "cert"
+    text: "I toot whenever I want"
+  - toot_id: "start_1005"
+    user: "hackerman"
+    text: "Space is awesome"
+    media: "eso1907a.jpg"
+

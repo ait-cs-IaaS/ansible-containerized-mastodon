@@ -14,3 +14,7 @@
 - name: Mastobot
   tags: [mastobot]
   include_tasks: mastobot.yml
+
+- name: Mastobot
+  tags: [mastobot, toots]
+  include_tasks: toots.yml
