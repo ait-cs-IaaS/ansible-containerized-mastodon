@@ -5,6 +5,8 @@ import os
 import click
 import yaml
 import traceback
+import datetime
+import hashlib
 
 API_URL = ""
 MEDIAPATH = "/opt/mastodon/media"
@@ -12,13 +14,18 @@ USERS_ENDPOINT = "/api/v1/pleroma/admin/users"
 DEFAULT_SCOPES = ['read', 'write', 'follow', 'push']
 ADMIN_SCOPES = DEFAULT_SCOPES + ['admin:read', 'admin:write']
 
+
 def initialize_toots(mastodon, initial_toots=[]):
   for toot in initial_toots:
+    idempotency = hashlib.md5(mastodon.me()['id'].encode('utf-8') + toot['text'].encode('utf-8')).hexdigest()
+    media_id = None
+    schedule = None
     if 'media' in toot and os.path.isfile("{0}/{1}".format(MEDIAPATH, toot['media'])):
-      mastodon.media_post(media_file="{0}/{1}".format(MEDIAPATH, toot['media']), description=toot['text'])
-    else:
-      mastodon.toot(toot['text'])
+      media_id = mastodon.media_post(media_file="{0}/{1}".format(MEDIAPATH, toot['media']))
+    if 'schedule' in toot:
+      schedule = datetime.datetime.now() + datetime.timedelta(minutes=toot['schedule'])
 
+    mastodon.status_post(toot['text'], media_ids=media_id, scheduled_at=schedule, idempotency_key=idempotency)
 
 def initialize_follows(mastodon, nicknames, follow=[]):
   for uid in follow:
@@ -118,11 +125,13 @@ def main(mastobotconfig, bootstrapconfig, reset):
   nicknames = [ existing_user['nickname'] for existing_user in existing_users['users'] ]
 
   for user in config_dict['mastodon_users']:
-    if reset:
-      os.remove('masto_bot/{0}.secret'.format(user['login']))
-      # reset_user(admin_mastodon, user['login'])
 
     try:
+      if reset:
+        os.remove('masto_bot/{0}.secret'.format(user['login']))
+        reset_toots(mastodon, mastodon.me()['id'])
+        return
+
       if user['login'] in nicknames:
         mastodon = login_user(
           user['login'],
@@ -134,11 +143,8 @@ def main(mastobotconfig, bootstrapconfig, reset):
           user['email'],
           user.get('password', 'password')
         )
-        initialize_toots(mastodon, user.get('initial_toots', []))
-
-      if reset:
-        reset_toots(mastodon, mastodon.me()['id'])
-
+        
+      initialize_toots(mastodon, user.get('initial_toots', []))
       initialize_follows(mastodon, nicknames, user.get('follow', []))
       update_account(mastodon, user.get('account', []))
     except Exception as err:
