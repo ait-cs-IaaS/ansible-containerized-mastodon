@@ -12,7 +12,7 @@
     mode: 0644
     content: |
       server_name: {{ server_name }}
-      mediapath: {{ deploy_dir }}/media
+      deploy_path: {{ deploy_dir }}
 
 - name: Create mastobot Bootsrap config
   become: true

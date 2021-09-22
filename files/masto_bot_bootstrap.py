@@ -18,8 +18,7 @@ ADMIN_SCOPES = DEFAULT_SCOPES + ['admin:read', 'admin:write']
 def initialize_toots(mastodon, initial_toots=[]):
   for toot in initial_toots:
     idempotency = hashlib.md5(mastodon.me()['id'].encode('utf-8') + toot['text'].encode('utf-8')).hexdigest()
-    media_id = None
-    schedule = None
+    media_id, schedule = None, None
     if 'media' in toot and os.path.isfile("{0}/{1}".format(MEDIAPATH, toot['media'])):
       media_id = mastodon.media_post(media_file="{0}/{1}".format(MEDIAPATH, toot['media']))
     if 'schedule' in toot:
@@ -143,10 +142,11 @@ def main(mastobotconfig, bootstrapconfig, reset):
           user['email'],
           user.get('password', 'password')
         )
-        
+
+      update_account(mastodon, user.get('account', []))
       initialize_toots(mastodon, user.get('initial_toots', []))
       initialize_follows(mastodon, nicknames, user.get('follow', []))
-      update_account(mastodon, user.get('account', []))
+
     except Exception as err:
       print("[{0}] ERROR {1}".format(user['login'], err))
       traceback.print_exc()
