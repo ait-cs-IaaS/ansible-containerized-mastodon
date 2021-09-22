@@ -1,4 +1,4 @@
 #!/bin/bash
 
 export REQUESTS_CA_BUNDLE={{ ssl_ca }}
-{{ deploy_dir }}/masto_bot.py --user="{{ item.user }}" {% if 'media' in item %}--media="{{ item.media }}"{% endif %} "{{ item.text }}" 
+{{ mastodon_deploy_dir }}/masto_bot.py --user="{{ item.user }}" {% if 'media' in item %}--media="{{ item.media }}"{% endif %} "{{ item.text }}" 

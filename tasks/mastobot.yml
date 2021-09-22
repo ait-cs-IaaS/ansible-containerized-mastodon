@@ -12,7 +12,7 @@
     mode: 0644
     content: |
       server_name: {{ server_name }}
-      deploy_path: {{ deploy_dir }}
+      deploy_path: {{ mastodon_deploy_dir }}
 
 - name: Create mastobot Bootsrap config
   become: true
@@ -27,7 +27,7 @@
 - name: Create masto_bot directory
   become: true
   file:
-    path: "{{ deploy_dir }}/masto_bot"
+    path: "{{ mastodon_deploy_dir }}/masto_bot"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
@@ -35,7 +35,7 @@
 - name: Deploy mastobot
   become: true
   copy:
-    dest: "{{ deploy_dir }}/masto_bot.py"
+    dest: "{{ mastodon_deploy_dir }}/masto_bot.py"
     src: masto_bot.py
     mode: 0755
 
@@ -43,7 +43,7 @@
   tags: ["mastobot"]
   become: true
   copy:
-    dest: "{{ deploy_dir }}/masto_bot_bootstrap.py"
+    dest: "{{ mastodon_deploy_dir }}/masto_bot_bootstrap.py"
     src: masto_bot_bootstrap.py
     mode: 0755
 
@@ -56,12 +56,12 @@
       #!/bin/bash
 
       export REQUESTS_CA_BUNDLE={{ ssl_ca }}
-      {{ deploy_dir }}/masto_bot.py "$@"
+      {{ mastodon_deploy_dir }}/masto_bot.py "$@"
 
 - name: Mastobot Bootstrap
   shell:
-    cmd: "{{ deploy_dir }}/masto_bot_bootstrap.py"
-    chdir: "{{ deploy_dir }}"
+    cmd: "{{ mastodon_deploy_dir }}/masto_bot_bootstrap.py"
+    chdir: "{{ mastodon_deploy_dir }}"
   environment:
     REQUESTS_CA_BUNDLE: "{{ ssl_ca }}"
 

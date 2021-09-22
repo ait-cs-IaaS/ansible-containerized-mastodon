@@ -27,17 +27,17 @@
   file:
     path: "{{ item }}"
     state: directory
-  loop: ["{{ deploy_dir }}", "{{ deploy_dir }}/config", "{{ deploy_dir }}/media"]
+  loop: ["{{ mastodon_deploy_dir }}", "{{ mastodon_deploy_dir }}/config", "{{ mastodon_deploy_dir }}/media"]
 
 - name: Deploy media
   become: true
   copy:
     src: bootstrap_media/
-    dest: "{{ deploy_dir }}/media/"
+    dest: "{{ mastodon_deploy_dir }}/media/"
 
 - name: Write pleroma config
   become: true
   template:
-    dest: "{{ deploy_dir }}/config/config.exs"
+    dest: "{{ mastodon_deploy_dir }}/config/config.exs"
     src: config.exs.j2
 

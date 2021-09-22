@@ -35,7 +35,7 @@ Ansible Module to install [mastodon](https://github.com/tootsuite/mastodon) via 
       become: true
       copy:
         src: mastodon_media/
-        dest: "{{ deploy_dir }}/media/"
+        dest: "{{ mastodon_deploy_dir }}/media/"
 ```
 
 ## Role Variables
@@ -64,7 +64,7 @@ ssl_key: "/etc/ssl/mastodon.key"
 ```
 
 ```yaml
-deploy_dir: /opt/mastodon
+mastodon_deploy_dir: /opt/mastodon
 ```
 
 ```yaml

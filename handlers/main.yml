@@ -4,3 +4,8 @@
     name: nginx
     state: restarted
   become: true
+
+- name: Copy user setup
+  become: true
+  command:
+    cmd: "docker cp {{ mastodon_deploy_dir }}/user_setup.sh mastodon:/opt/pleroma"

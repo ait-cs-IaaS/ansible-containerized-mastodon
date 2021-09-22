@@ -2,43 +2,38 @@
 - name: Deploy docker compose
   become: true
   template:
-    dest: "{{ deploy_dir }}/docker-compose.yml"
+    dest: "{{ mastodon_deploy_dir }}/docker-compose.yml"
     src: docker-compose.yml
     mode: 0644
 
 - name: Deploy env file
   become: true
   template:
-    dest: "{{ deploy_dir }}/.env.production"
+    dest: "{{ mastodon_deploy_dir }}/.env.production"
     src: .env.production.j2
     mode: 0644
 
 - name: Deploy initial user creator
   become: true
   template:
-    dest: "{{ deploy_dir }}/user_setup.sh"
+    dest: "{{ mastodon_deploy_dir }}/user_setup.sh"
     src: user_setup.sh.j2
     mode: 0755
 
 - name: Create and start services
   become: true
   community.docker.docker_compose:
-    project_src: "{{ deploy_dir }}"
-
-- name: Copy ait user setup
-  become: true
-  shell:
-    cmd: "docker cp {{ deploy_dir }}/user_setup.sh mastodon:/opt/pleroma"
+    project_src: "{{ mastodon_deploy_dir }}"
+  notify: Copy user setup
 
 - name: Wait for mastodon to start
   wait_for:
     host: 127.0.0.1
     port: 4000
-    delay: 3
+    delay: 7
 
 - name: Create ait user
   become: true
   community.docker.docker_container_exec:
     container: mastodon
     command: "./user_setup.sh"
-
