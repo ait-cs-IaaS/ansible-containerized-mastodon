@@ -26,6 +26,9 @@
     project_src: "{{ mastodon_deploy_dir }}"
   notify: Copy user setup
 
+- name: flush handler
+  meta: flush_handlers
+
 - name: Wait for mastodon to start
   wait_for:
     host: 127.0.0.1
