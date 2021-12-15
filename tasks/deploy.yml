@@ -26,8 +26,10 @@
     project_src: "{{ mastodon_deploy_dir }}"
   notify: Copy user setup
 
-- name: flush handler
-  meta: flush_handlers
+- name: Copy user setup
+  become: true
+  command:
+    cmd: "docker cp {{ mastodon_deploy_dir }}/user_setup.sh mastodon:/opt/pleroma"
 
 - name: Wait for mastodon to start
   wait_for:

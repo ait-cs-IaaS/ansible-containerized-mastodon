@@ -106,7 +106,7 @@ def main(mastobotconfig, bootstrapconfig, reset):
   with open(mastobotconfig) as f:
     mastobotconfig_dict = yaml.safe_load(f)
 
-  MEDIAPATH = mastobotconfig_dict['mediapath']
+  MEDIAPATH = mastobotconfig_dict.get('mediapath', MEDIAPATH)
   API_URL = "https://{0}".format(mastobotconfig_dict['server_name'])
 
   with open(bootstrapconfig) as f:
